@@ -1,7 +1,7 @@
-import { pool } from '../helper/db.js'
+import { pool } from '../index.js'
 import { Router } from 'express'
 import { compare, hash } from 'bcrypt'
-import { sign } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 const router = Router()
 
@@ -61,7 +61,7 @@ router.post('/signin', (req, res, next) => {
                 return next(error)
             }
 
-            const token = sign({ user: dbUser.email }, process.env.JWT_SECRET)
+            const token = jwt.sign({ user: dbUser.email }, process.env.JWT_SECRET)
             res.status(200).json({
                 id: dbUser.id,
                 email: dbUser.email,
