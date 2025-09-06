@@ -34,14 +34,15 @@ router.post('/signup', (req, res, next) => {
 })
 
 router.post('/signin', (req, res, next) => {
-    const { user } = req.body
-    if (!user || !user.email || !user.password) {
+    const { email, password } = req.body
+
+    if (!email || !password) {
         const error = new Error('Email and password are required')
         error.status = 400
         return next(error)
     }
 
-    pool.query('SELECT * FROM account WHERE email = $1', [user.email], (err, result) => {
+    pool.query('SELECT * FROM account WHERE email = $1', [email], (err, result) => {
         if (err) return next(err)
 
         if (result.rows.length === 0) {
@@ -52,7 +53,7 @@ router.post('/signin', (req, res, next) => {
 
         const dbUser = result.rows[0]
 
-        compare(user.password, dbUser.password, (err, isMatch) => {
+        compare(password, dbUser.password, (err, isMatch) => {
             if (err) return next(err)
 
             if (!isMatch) {
@@ -61,7 +62,7 @@ router.post('/signin', (req, res, next) => {
                 return next(error)
             }
 
-            const token = jwt.sign({ user: dbUser.email }, process.env.JWT_SECRET)
+            const token = jwt.sign({ user: dbUser.email }, process.env.JWT_SECRET_KEY)
             res.status(200).json({
                 id: dbUser.id,
                 email: dbUser.email,
@@ -70,5 +71,4 @@ router.post('/signin', (req, res, next) => {
         })
     })
 })
-
 export default router

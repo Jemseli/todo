@@ -11,26 +11,18 @@ router.get('/', (req, res, next) => {
   })
 })
 
-router.post('/create', auth, (req, res, next) => {
-  const { task } = req.body
+router.post('/create', auth, (req, res) => {
+  const { description } = req.body
+  if (!description) return res.status(400).json({ error: 'Task description is required' })
 
-  if (!task) {
-    return res.status(400).json({ error: 'Task is required' })
-  }
-
-  pool.query(
-    'INSERT INTO task (description) VALUES ($1) RETURNING *',
-    [task],
-    (err, result) => {
-      if (err) return next(err)
-      res.status(201).json(result.rows[0])
-    }
-  )
+  pool.query('INSERT INTO task (description) VALUES ($1) RETURNING *', [description], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message })
+    res.status(201).json(result.rows[0])
+  })
 })
 
 router.delete('/delete/:id', (req, res, next) => {
   const { id } = req.params
-
   pool.query('DELETE FROM task WHERE id = $1', [id], (err, result) => {
     if (err) return next(err)
     if (result.rowCount === 0) {

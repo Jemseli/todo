@@ -11,11 +11,3 @@ export default function Row({ item, deleteTask }) {
         </li>
     )
 }
-
-<ul>
-    {
-        tasks.map(item => (
-            <Row item={item} key={item.id} deleteTask={deleteTask} />
-        ))
-    }
-</ul>
